@@ -1,5 +1,6 @@
 FROM cgr.dev/chainguard/node:latest-dev AS build
 
+USER root
 WORKDIR /app
 
 # Run pnpm through corepack directly to avoid writing to /usr/bin in non-root images.
