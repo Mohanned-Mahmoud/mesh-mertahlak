@@ -1,0 +1,42 @@
+Replit, I want you to build a full-stack, real-time companion web app for a local multiplayer party game called "The Date Judge" (قاضي البلح). Do not ask for a video or external code; rely entirely on the precise instructions and mechanics detailed below.
+
+### 1. Tech Stack & Architecture:
+
+Frontend: React, TypeScript, Vite, Tailwind CSS.
+
+Backend: Node.js, Express.js.
+
+Real-time Engine: Socket.io (CRITICAL: Use this for room management, hidden role assignments, and syncing game state).
+
+Database: Drizzle ORM (PostgreSQL) to store a predefined list of "Weird Questions" and their corresponding "Weird Answers".
+
+### 2. Visual Theme & UI:
+
+Style: The visual theme MUST be "Pop Cartoon" (vibrant bright colors, bold thick outlines, playful typography, smooth bouncy animations). Think of party games like Jackbox or Exploding Kittens.
+
+Interface Type: This is a "Companion App". It acts as a digital card dealer, role assigner, and scorekeeper for a game played verbally in real life. NO TEXT TYPING IS REQUIRED during the game (except for entering names in the lobby).
+
+### 3. Roles & The Core Mechanic:
+There are 3 roles. **Crucial Rule: Only the Judge's identity is public on the screens. The identities of the Truth Teller and Deceivers must be strictly HIDDEN.**
+
+1. The Judge (الحكم): One player. Rotates to the next player each round (the very first Judge is selected randomly by the app).
+
+2. The Truth Teller (عين العقل): One random player per round. They see the correct answer on their screen. In real life, they must say this answer out loud but try to act slightly doubtful so the Judge suspects them.
+
+3. The Deceivers (الي بياكلوا بعقل الحكم حلاوة): All other players. They also see the correct answer on their screens. In real life, they must confidently make up fake, believable answers out loud to trick the Judge.
+
+### 4. The Gameplay Loop:
+1. Lobby: Players join a room via a room code and enter their nicknames.
+2. Round Start: The server randomly assigns the Judge and the Truth Teller via Socket.io. Roles are displayed privately on each player's device.
+3. Card Display Phase:
+- The Judge's screen displays a stylized 3D card front showing a "Weird Question".
+- All other players' screens show the back of the card displaying the "Correct Answer", along with a visual reminder of their secret role (Truth Teller or Deceiver).
+4. Verbal Phase (IRL): The app displays a waiting screen (e.g., "Players are pitching their answers!"). In real life, the players talk and try to convince the Judge.
+5. Voting Phase: When ready, the Judge clicks a "Time to Vote" button. The Judge's screen then displays a list of all other players' names. The Judge taps the name of the person they believe is the real "Truth Teller".
+6. Scoring Phase:
+- The app dramatically reveals who the real Truth Teller was.
+- If the Judge guessed RIGHT: The Judge gets 1 Diamond.
+- If the Judge guessed WRONG: The Truth Teller gets 1 Diamond, AND the Deceiver who successfully tricked the Judge (the one the Judge voted for) gets 1 Diamond.
+7. Next Round: The Judge role moves to the next person, and a new round begins.
+
+Please initialize the project, set up the Express/Socket.io backend to handle this exact state machine, and build the React UI with the requested Pop Cartoon aesthetic.

@@ -1,0 +1,13 @@
+.git
+.gitignore
+.firebaserc
+.env
+.env.*
+node_modules
+**/node_modules
+**/dist
+**/.vite
+**/.turbo
+**/*.log
+.cache
+.local

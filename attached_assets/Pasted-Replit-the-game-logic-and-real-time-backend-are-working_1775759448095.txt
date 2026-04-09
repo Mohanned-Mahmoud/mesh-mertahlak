@@ -1,0 +1,43 @@
+Replit, the game logic and real-time backend are working perfectly. Do NOT change the Socket.io logic, the game state machine, or the backend API. I want you to strictly focus on a massive UI/UX and Design upgrade for the React frontend.
+
+Please refactor the frontend components and Tailwind styles based on the following premium design guidelines:
+
+### 1. Arabic Typography & RTL Support (CRITICAL):
+
+Ensure the entire app explicitly supports Right-to-Left (RTL). Set <html dir="rtl" lang="ar"> in index.html if not already done.
+
+Import and apply Google Fonts for Arabic. 
+
+Use **'Lalezar'** font for all headings, titles, roles, and big impactful text. This font gives a perfect playful/cartoonish vibe.
+
+Use **'Cairo'** or **'Tajawal'** font for all body text, button labels, and general reading to ensure perfect legibility.
+
+### 2. Neo-Brutalism & Pop Cartoon Aesthetic:
+
+The UI should look like a highly polished modern party game (like Jackbox or Exploding Kittens).
+
+Color Palette: Use extremely vibrant, high-contrast colors (e.g., Electric Blue, Hot Pink, Bright Yellow, Mint Green). Avoid dull or standard web colors.
+
+Borders & Shadows: Every interactive element (Buttons, Cards, Modals) MUST have thick, solid black borders (e.g., border-4 border-black) and hard, non-blurred offset shadows (e.g., shadow-[6px_6px_0px_rgba(0,0,0,1)]).
+
+Cards: Make the playing cards look like physical, thick cardboard cards using these bold borders and solid backgrounds.
+
+### 3. Juicy Animations & Micro-interactions:
+
+Add Framer Motion (or pure CSS) for smooth, bouncy animations.
+
+Buttons should have an active "press" effect (translating down to merge with their hard shadow when clicked).
+
+Cards should have a smooth 3D flip animation when revealing the "Weird Answer" or when the Judge is viewing them.
+
+Add a dramatic, playful reveal animation for the "Voting Phase" and the "Scoring Phase".
+
+### 4. Layout & Spacing:
+
+Ensure it is heavily optimized for Mobile (since it's a companion app).
+
+Increase padding and margins. Elements should breathe and feel large and "tappable".
+
+Use flexbox/grid to center the cards beautifully in the middle of the screen.
+
+Go through the UI components (Lobby, Cards, Buttons, Scoreboard) and apply these exact visual upgrades.

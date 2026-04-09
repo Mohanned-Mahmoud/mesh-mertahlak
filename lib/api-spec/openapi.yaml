@@ -1,0 +1,78 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification for The Date Judge party game
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: questions
+    description: Question and answer cards
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /questions/random:
+    get:
+      operationId: getRandomQuestion
+      tags: [questions]
+      summary: Get a random question
+      description: Returns a random question-answer card
+      responses:
+        "200":
+          description: A random question card
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionCard"
+  /questions:
+    get:
+      operationId: listQuestions
+      tags: [questions]
+      summary: List all questions
+      description: Returns all available question cards
+      responses:
+        "200":
+          description: List of question cards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QuestionCard"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    QuestionCard:
+      type: object
+      properties:
+        id:
+          type: integer
+        question:
+          type: string
+        answer:
+          type: string
+      required:
+        - id
+        - question
+        - answer
