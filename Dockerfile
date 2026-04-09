@@ -2,15 +2,16 @@ FROM cgr.dev/chainguard/node:latest-dev AS build
 
 WORKDIR /app
 
-RUN corepack enable
+# Run pnpm through corepack directly to avoid writing to /usr/bin in non-root images.
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json .npmrc ./
 COPY artifacts ./artifacts
 COPY lib ./lib
 COPY scripts ./scripts
 
-RUN pnpm install --frozen-lockfile
-RUN pnpm --filter @workspace/api-server run build
+RUN corepack pnpm install --frozen-lockfile
+RUN corepack pnpm --filter @workspace/api-server run build
 
 FROM cgr.dev/chainguard/node:latest
 

@@ -22,7 +22,7 @@ services:
     plan: free
     runtime: docker
     region: oregon
-    dockerfilePath: ./artifacts/api-server/Dockerfile
+    dockerfilePath: ./Dockerfile
     dockerContext: ./
     envVars:
       - key: NODE_ENV
