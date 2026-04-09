@@ -52,7 +52,7 @@ function buildStateForPlayer(room: Room, playerId: string) {
     players: room.players.map((p) => ({ id: p.id, name: p.name, score: p.score })),
     phase: room.phase,
     currentJudgeId: currentJudge?.id ?? null,
-    currentTruthTellerId: null,
+    currentTruthTellerId: room.currentTruthTellerId,
     currentQuestion: room.currentQuestion,
     myRole,
     roundNumber: room.roundNumber,

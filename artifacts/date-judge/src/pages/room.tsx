@@ -274,11 +274,13 @@ function JudgeCardDisplay() {
 
       {/* 3-D Flip Card */}
       <div className="card-scene w-full max-w-sm" style={{ height: 220 }}>
-        <motion.div
+        <motion.button
+          type="button"
           className={`card-flipper ${flipped ? "is-flipped" : ""}`}
           onClick={() => !flipped && setFlipped(true)}
           whileTap={!flipped ? { scale: 0.97 } : {}}
-          style={{ cursor: flipped ? "default" : "pointer" }}
+          style={{ cursor: flipped ? "default" : "pointer", border: 0, padding: 0, background: "transparent" }}
+          aria-label={flipped ? "تم كشف السؤال" : "اضغط لكشف السؤال"}
         >
           {/* BACK — decorative purple */}
           <div
@@ -312,7 +314,7 @@ function JudgeCardDisplay() {
               {gameState.currentQuestion.question}
             </p>
           </div>
-        </motion.div>
+        </motion.button>
       </div>
 
       {!flipped && (
@@ -324,6 +326,17 @@ function JudgeCardDisplay() {
         >
           👆 اضغط الكارت عشان تشوف السؤال
         </motion.p>
+      )}
+
+      {!flipped && (
+        <BrutalBtn
+          onClick={() => setFlipped(true)}
+          bg={ORANGE}
+          size="lg"
+          className="max-w-sm"
+        >
+          🔓 اضغط لكشف السؤال
+        </BrutalBtn>
       )}
 
       <AnimatePresence>
