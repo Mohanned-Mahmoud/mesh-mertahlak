@@ -204,6 +204,8 @@
   height: 100%;
   transition: transform 0.65s cubic-bezier(0.45, 0.05, 0.55, 0.95);
   transform-style: preserve-3d;
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .card-flipper.is-flipped {
@@ -219,6 +221,7 @@
   border: 4px solid #000;
   box-shadow: 8px 8px 0px #000;
   overflow: hidden;
+  pointer-events: none;
 }
 
 .card-face--back {
