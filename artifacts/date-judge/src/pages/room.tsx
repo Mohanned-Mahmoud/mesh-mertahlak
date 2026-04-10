@@ -144,8 +144,14 @@ function RoundBadge({ round }: { round: number }) {
 }
 
 function ShareRoomButton({ roomCode }: { roomCode: string }) {
+  const [playerNameState] = useState(() => {
+    return localStorage.getItem("date-judge-player-name") || "";
+  });
   const [copied, setCopied] = useState(false);
-  const roomUrl = `${window.location.origin}/room/${roomCode}`;
+  
+  // Build link with name pre-filled if available
+  const queryParams = playerNameState ? `?name=${encodeURIComponent(playerNameState)}` : "";
+  const roomUrl = `${window.location.origin}/room/${roomCode}${queryParams}`;
 
   const handleShare = async () => {
     try {
@@ -907,18 +913,13 @@ export default function Room() {
 
   useEffect(() => {
     if (!match || joinedRef.current) return;
-    if (!roomCode || !playerName.trim()) return;
+    if (!roomCode) return; // Don't join if no room code
+    if (!playerName.trim()) return; // Don't join if no name typed yet
 
-    const searchParams = new URLSearchParams(window.location.search);
-    const nameFromUrl = searchParams.get("name");
-    if (nameFromUrl) {
-      localStorage.setItem("date-judge-player-name", playerName.trim());
-    }
-
-    if (roomCode) {
-      joinRoom(roomCode, playerName.trim());
-      joinedRef.current = true;
-    }
+    // Auto-join with savedplayer name or URL param name
+    localStorage.setItem("date-judge-player-name", playerName.trim());
+    joinRoom(roomCode, playerName.trim());
+    joinedRef.current = true;
   }, [match, roomCode, playerName, joinRoom]);
 
   if (!joinedRef.current) {
