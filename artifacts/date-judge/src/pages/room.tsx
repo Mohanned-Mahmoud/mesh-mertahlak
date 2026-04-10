@@ -2,6 +2,24 @@ import { useEffect, useRef, useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSocket } from "@/lib/socket-context";
+import {
+  IconDiamond,
+  IconGavel,
+  IconController,
+  IconQuestion,
+  IconEye,
+  IconDevil,
+  IconMic,
+  IconTarget,
+  IconLaugh,
+  IconThinking,
+  IconLock,
+  IconCheck,
+  IconHome,
+  IconRepeat,
+  IconVote,
+  IconScale,
+} from "@/components/game-icons";
 
 /* ─── Shared Design Tokens ────────────────────────────────────── */
 const PINK   = "hsl(330,100%,50%)";
@@ -55,10 +73,10 @@ function Scoreboard({ players }: { players: { id: string; name: string; score: n
       <motion.button
         whileTap={{ scale: 0.9 }}
         onClick={() => setOpen((v) => !v)}
-        className="btn-brutal px-3 py-2 text-sm"
+        className="btn-brutal px-3 py-2 text-sm flex items-center gap-2"
         style={{ background: YELLOW, color: BLACK, fontSize: "1rem", borderRadius: 12 }}
       >
-        💎 النقاط
+        <IconDiamond size={18} /> النقاط
       </motion.button>
 
       <AnimatePresence>
@@ -85,15 +103,18 @@ function Scoreboard({ players }: { players: { id: string; name: string; score: n
                 className="flex justify-between items-center py-1.5"
               >
                 <div className="flex items-center gap-2">
-                  <span style={{ fontSize: "1.1rem" }}>
-                    {i < 3 ? ["🥇","🥈","🥉"][i] : `${i+1}.`}
+                  <span
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                    style={{ background: [YELLOW, "#C0C0C0", "#CD7F32", BLUE, GREEN][i] ?? BLUE, border: "2px solid #000", fontFamily: "Lalezar" }}
+                  >
+                    {i + 1}
                   </span>
                   <span className="font-bold text-sm truncate max-w-[110px]" style={{ fontFamily: "Cairo" }}>
                     {p.name}
                   </span>
                 </div>
                 <span className="font-bold flex items-center gap-1" style={{ fontFamily: "Lalezar", fontSize: "1.1rem" }}>
-                  {p.score} 💎
+                  {p.score} <IconDiamond size={14} />
                 </span>
               </motion.div>
             ))}
@@ -153,7 +174,10 @@ function ShareRoomButton({ roomCode }: { roomCode: string }) {
 
   return (
     <BrutalBtn onClick={handleShare} bg={ORANGE} color={BLACK} size="lg">
-      {copied ? "✅ تم نسخ لينك الروم" : "📤 ابعت لينك الروم"}
+      <span className="inline-flex items-center gap-2">
+        {copied ? <IconCheck size={18} /> : <IconRepeat size={18} />}
+        {copied ? "تم نسخ لينك الروم" : "ابعت لينك الروم"}
+      </span>
     </BrutalBtn>
   );
 }
@@ -180,6 +204,9 @@ function LobbyScreen() {
           className="py-5 px-5 text-center"
           style={{ background: BLUE, borderBottom: "4px solid #000" }}
         >
+          <div className="flex justify-center mb-2">
+            <IconScale size={52} />
+          </div>
           <h2 className="text-4xl text-white" style={{ fontFamily: "Lalezar", textShadow: "2px 2px 0 #000" }}>
             صالة الانتظار
           </h2>
@@ -269,7 +296,9 @@ function LobbyScreen() {
                 </p>
               )}
               <BrutalBtn onClick={startGame} disabled={!canStart} bg={GREEN} color={BLACK} size="xl">
-                🎮 ابدأ اللعبة!
+                <span className="inline-flex items-center gap-2">
+                  <IconController size={26} /> ابدأ اللعبة!
+                </span>
               </BrutalBtn>
             </div>
           ) : (
@@ -279,7 +308,9 @@ function LobbyScreen() {
               className="w-full rounded-2xl py-4 text-center font-bold text-base"
               style={{ background: "#f0f0f0", border: "4px solid #000", fontFamily: "Cairo" }}
             >
-              ⏳ بنستنى الهوست يبدأ اللعبة...
+              <span className="inline-flex items-center gap-2">
+                <IconRepeat size={20} /> بنستنى الهوست يبدأ اللعبة...
+              </span>
             </motion.div>
           )}
         </div>
@@ -304,8 +335,11 @@ function JudgeCardDisplay() {
         className="w-full max-w-sm rounded-2xl py-4 px-5 text-center"
         style={{ background: PINK, border: "4px solid #000", boxShadow: "6px 6px 0 #000" }}
       >
+        <div className="flex justify-center mb-2">
+          <IconGavel size={48} />
+        </div>
         <p className="text-3xl text-white" style={{ fontFamily: "Lalezar", textShadow: "2px 2px 0 #000" }}>
-          ⚖️ أنت القاضي
+          أنت القاضي
         </p>
         <p className="text-white text-sm font-bold mt-1 opacity-90" style={{ fontFamily: "Cairo" }}>
           اقلب الكارت وافهم السؤال
@@ -330,9 +364,9 @@ function JudgeCardDisplay() {
             <motion.div
               animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.1, 1] }}
               transition={{ duration: 3, repeat: Infinity }}
-              className="text-7xl mb-3"
+              className="mb-3"
             >
-              ❓
+              <IconQuestion size={84} />
             </motion.div>
             <p
               className="text-white text-xl"
@@ -364,7 +398,7 @@ function JudgeCardDisplay() {
           className="text-sm font-bold opacity-60 text-center"
           style={{ fontFamily: "Cairo" }}
         >
-          👆 اضغط الكارت عشان تشوف السؤال
+          اضغط الكارت عشان تشوف السؤال
         </motion.p>
       )}
 
@@ -375,7 +409,9 @@ function JudgeCardDisplay() {
           size="lg"
           className="max-w-sm"
         >
-          🔓 اضغط لكشف السؤال
+          <span className="inline-flex items-center gap-2">
+            <IconEye size={22} /> اضغط لكشف السؤال
+          </span>
         </BrutalBtn>
       )}
 
@@ -392,11 +428,13 @@ function JudgeCardDisplay() {
               style={{ background: "#f9f9f9", border: "4px solid #000" }}
             >
               <p className="text-sm font-bold opacity-60" style={{ fontFamily: "Cairo" }}>
-                🎤 اللاعبين بيشرحوا إجاباتهم... استنّى كل ما يخلصوا
+                اللاعبين بيشرحوا إجاباتهم... استنّى كل ما يخلصوا
               </p>
             </div>
             <BrutalBtn onClick={nextPhase} bg={ORANGE} size="xl">
-              اللاعبين خلصوا 👂
+              <span className="inline-flex items-center gap-2">
+                <IconMic size={22} /> اللاعبين خلصوا
+              </span>
             </BrutalBtn>
           </motion.div>
         )}
@@ -413,7 +451,6 @@ function PlayerCardDisplay() {
 
   const isTruthTeller = gameState.myRole === "truth-teller";
   const roleBg   = isTruthTeller ? GREEN : RED;
-  const roleIcon = isTruthTeller ? "🧠" : "😈";
   const roleAr   = isTruthTeller ? "عين العقل" : "اللي يأكل بعقل الحكم حلاوة";
   const roleTip  = isTruthTeller
     ? "قول الإجابة الصح بس اتصرف إنك مش واثق — خلّي القاضي يشك فيك"
@@ -430,11 +467,11 @@ function PlayerCardDisplay() {
         style={{ background: roleBg, border: "4px solid #000", boxShadow: "8px 8px 0 #000" }}
       >
         <motion.div
-          className="text-6xl mb-2"
+          className="mb-2"
           animate={{ scale: [1, 1.15, 1], rotate: [0, 5, -5, 0] }}
           transition={{ duration: 2.5, repeat: Infinity }}
         >
-          {roleIcon}
+          {isTruthTeller ? <IconEye size={64} /> : <IconDevil size={64} />}
         </motion.div>
         <p
           className="text-3xl text-white"
@@ -476,7 +513,7 @@ function PlayerCardDisplay() {
                 transition={{ duration: 1.5, repeat: Infinity }}
                 className="text-center"
               >
-                <p className="text-4xl mb-2">🔒</p>
+                <div className="flex justify-center mb-2"><IconLock size={52} /></div>
                 <p className="font-bold text-base opacity-60" style={{ fontFamily: "Cairo" }}>
                   اضغط لكشف الإجابة الصح
                 </p>
@@ -533,9 +570,9 @@ function VerbalPhase() {
       <motion.div
         animate={{ scale: [1, 1.06, 1], rotate: [0, 3, -3, 0] }}
         transition={{ duration: 2.2, repeat: Infinity }}
-        className="text-8xl"
+        className=""
       >
-        🎤
+        <IconMic size={90} />
       </motion.div>
 
       <div className="text-center">
@@ -563,7 +600,9 @@ function VerbalPhase() {
               استنّى ما كل واحد يشرح إجابته، وبعدين ابدأ التصويت
             </p>
             <BrutalBtn onClick={startVoting} bg={PINK} size="xl">
-              🗳️ وقت التصويت!
+              <span className="inline-flex items-center gap-2">
+                <IconVote size={26} /> وقت التصويت!
+              </span>
             </BrutalBtn>
           </div>
         ) : (
@@ -613,9 +652,9 @@ function VotingScreen() {
         <motion.div
           animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.1, 1] }}
           transition={{ duration: 2.5, repeat: Infinity }}
-          className="text-8xl"
+          className=""
         >
-          🤔
+          <IconThinking size={92} />
         </motion.div>
         <h2
           className="text-4xl text-center"
@@ -628,7 +667,7 @@ function VotingScreen() {
           style={{ background: WHITE, border: "4px solid #000", boxShadow: "6px 6px 0 #000" }}
         >
           <p className="text-sm font-bold" style={{ fontFamily: "Cairo" }}>
-            مين هيختار؟ 😬
+            مين هيختار؟
           </p>
         </div>
       </div>
@@ -692,9 +731,9 @@ function VotingScreen() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 300 }}
-                className="text-2xl"
+                className=""
               >
-                ✅
+                <IconCheck size={32} />
               </motion.span>
             )}
           </motion.button>
@@ -730,11 +769,11 @@ function ScoringScreen() {
         transition={{ type: "spring", stiffness: 240, damping: 14 }}
       >
         <motion.div
-          className="text-7xl mb-3"
+          className="mb-3"
           animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }}
           transition={{ duration: 0.7, delay: 0.3 }}
         >
-          {judgeGuessedRight ? "🎯" : "😂"}
+          {judgeGuessedRight ? <IconTarget size={86} /> : <IconLaugh size={86} />}
         </motion.div>
         <h2
           className="text-4xl text-white"
@@ -790,7 +829,7 @@ function ScoringScreen() {
             className="rounded-2xl py-4 px-5 flex items-center gap-3"
             style={{ background: YELLOW, border: "4px solid #000", boxShadow: "4px 4px 0 #000" }}
           >
-            <span className="text-3xl">💎</span>
+            <IconDiamond size={32} />
             <span className="font-bold text-base" style={{ fontFamily: "Cairo" }}>
               القاضي كسب الماسة!
             </span>
@@ -804,7 +843,7 @@ function ScoringScreen() {
               className="rounded-2xl py-4 px-5 flex items-center gap-3"
               style={{ background: GREEN, border: "4px solid #000", boxShadow: "4px 4px 0 #000" }}
             >
-              <span className="text-3xl">💎</span>
+              <IconDiamond size={32} />
               <span className="font-bold text-sm" style={{ fontFamily: "Cairo" }}>
                 عين العقل ({truthTellerName}) كسب ماسة!
               </span>
@@ -816,7 +855,7 @@ function ScoringScreen() {
               className="rounded-2xl py-4 px-5 flex items-center gap-3"
               style={{ background: PINK, border: "4px solid #000", boxShadow: "4px 4px 0 #000" }}
             >
-              <span className="text-3xl">💎</span>
+              <IconDiamond size={32} />
               <span className="font-bold text-sm text-white" style={{ fontFamily: "Cairo" }}>
                 المخادع ({votedForName}) كسب ماسة!
               </span>
@@ -834,7 +873,9 @@ function ScoringScreen() {
           className="w-full max-w-sm"
         >
           <BrutalBtn onClick={nextRound} bg={BLUE} size="xl">
-            🔄 الجولة الجاية!
+            <span className="inline-flex items-center gap-2">
+              <IconRepeat size={24} /> الجولة الجاية!
+            </span>
           </BrutalBtn>
         </motion.div>
       )}
@@ -938,7 +979,9 @@ export default function Room() {
             </div>
 
             <BrutalBtn onClick={handleJoinRoom} disabled={!playerName.trim()} bg={GREEN} color={BLACK} size="xl">
-              🚪 ادخل الروم
+              <span className="inline-flex items-center gap-2">
+                <IconHome size={22} /> ادخل الروم
+              </span>
             </BrutalBtn>
           </div>
         </motion.div>
@@ -976,9 +1019,9 @@ export default function Room() {
         <motion.div
           animate={{ rotate: [0, 10, -10, 0] }}
           transition={{ duration: 0.5, repeat: 3 }}
-          className="text-7xl"
+          className=""
         >
-          😱
+          <IconDevil size={86} />
         </motion.div>
         <div
           className="card-brutal w-full max-w-sm py-5 px-5 text-center"
@@ -989,7 +1032,9 @@ export default function Room() {
           </p>
         </div>
         <BrutalBtn onClick={() => setLocation("/")} bg={WHITE} color={BLACK} size="lg">
-          🏠 الرجوع للبداية
+          <span className="inline-flex items-center gap-2">
+            <IconHome size={24} /> الرجوع للبداية
+          </span>
         </BrutalBtn>
       </div>
     );
