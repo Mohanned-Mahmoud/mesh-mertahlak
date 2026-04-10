@@ -102,14 +102,14 @@ export function initSocketIO(io: SocketIOServer) {
       }
 
       const room = rooms.get(code)!;
+      const existingPlayer = room.players.find((p) => p.id === stablePlayerId);
 
-      if (room.phase !== "lobby") {
+      // تعديل هنا: نمنع الدخول فقط لو هو لاعب جديد واللعبة بدأت بالفعل
+      if (!existingPlayer && room.phase !== "lobby") {
         socket.emit("error", { message: "Game already in progress" });
         return;
       }
 
-      // Check if player already exists by their stable ID
-      const existingPlayer = room.players.find((p) => p.id === stablePlayerId);
       if (!existingPlayer) {
         const newPlayer: Player = {
           id: stablePlayerId,
