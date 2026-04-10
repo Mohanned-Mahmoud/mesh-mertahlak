@@ -1,5 +1,5 @@
 {
-  "name": "قاضي البلح",
+  "name": "مش مرتاحلك",
   "short_name": "Date Judge",
   "start_url": "/",
   "display": "standalone",
@@ -7,15 +7,15 @@
   "theme_color": "#FF9500",
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "/web-app-manifest-192x192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/favicon.svg",
+      "src": "/web-app-manifest-512x512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
