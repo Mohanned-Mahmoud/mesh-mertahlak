@@ -848,17 +848,103 @@ export default function Room() {
   const [, setLocation] = useLocation();
   const { gameState, myPlayerId, joinRoom, error } = useSocket();
   const joinedRef = useRef(false);
+  const [playerName, setPlayerName] = useState(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    return searchParams.get("name") || localStorage.getItem("date-judge-player-name") || "";
+  });
+
+  const roomCode = params?.code?.toUpperCase() || "";
+
+  const handleJoinRoom = () => {
+    const trimmedName = playerName.trim();
+    if (!match || !roomCode || !trimmedName) return;
+
+    localStorage.setItem("date-judge-player-name", trimmedName);
+    joinRoom(roomCode, trimmedName);
+    joinedRef.current = true;
+  };
 
   useEffect(() => {
     if (!match || joinedRef.current) return;
+    if (!roomCode || !playerName.trim()) return;
+
     const searchParams = new URLSearchParams(window.location.search);
-    const name = searchParams.get("name") || "لاعب";
-    const code = params?.code || "";
-    if (code) {
-      joinRoom(code.toUpperCase(), name);
+    const nameFromUrl = searchParams.get("name");
+    if (nameFromUrl) {
+      localStorage.setItem("date-judge-player-name", playerName.trim());
+    }
+
+    if (roomCode) {
+      joinRoom(roomCode, playerName.trim());
       joinedRef.current = true;
     }
-  }, [match, params, joinRoom]);
+  }, [match, roomCode, playerName, joinRoom]);
+
+  if (!joinedRef.current) {
+    return (
+      <div
+        className="min-h-[100dvh] flex flex-col items-center justify-center p-5"
+        style={{ background: "linear-gradient(135deg, #FFE500 0%, #FF9500 100%)" }}
+        dir="rtl"
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 240, damping: 18 }}
+          className="card-brutal w-full max-w-sm overflow-hidden"
+          style={{ padding: 0 }}
+        >
+          <div className="py-5 px-5 text-center" style={{ background: BLUE, borderBottom: "4px solid #000" }}>
+            <h2 className="text-4xl text-white" style={{ fontFamily: "Lalezar", textShadow: "2px 2px 0 #000" }}>
+              ادخل الغرفة
+            </h2>
+            <p className="text-white text-sm font-bold mt-1 opacity-90" style={{ fontFamily: "Cairo" }}>
+              كود الغرفة ظاهر، بس لسه محتاج اسمك
+            </p>
+          </div>
+
+          <div className="p-5 space-y-4">
+            <div
+              className="w-full rounded-2xl py-4 text-center"
+              style={{ background: YELLOW, border: "4px solid #000", boxShadow: "6px 6px 0 #000" }}
+            >
+              <p className="text-xs font-bold mb-1 opacity-60" style={{ fontFamily: "Cairo" }}>كود الغرفة</p>
+              <p className="tracking-[0.35em] text-5xl" style={{ fontFamily: "Lalezar", color: BLACK }}>
+                {roomCode}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-base font-bold block" style={{ fontFamily: "Cairo" }}>
+                اسمك
+              </label>
+              <input
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && playerName.trim()) handleJoinRoom();
+                }}
+                placeholder="اكتب اسمك هنا..."
+                className="w-full h-14 px-4 rounded-2xl text-base font-bold outline-none"
+                style={{
+                  fontFamily: "Cairo",
+                  border: "4px solid #000",
+                  boxShadow: "4px 4px 0 #000",
+                  background: "white",
+                  textAlign: "right",
+                }}
+                autoFocus
+              />
+            </div>
+
+            <BrutalBtn onClick={handleJoinRoom} disabled={!playerName.trim()} bg={GREEN} color={BLACK} size="xl">
+              🚪 ادخل الروم
+            </BrutalBtn>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   /* Loading spinner */
   if (!gameState && !error) {
