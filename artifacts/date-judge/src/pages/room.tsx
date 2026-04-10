@@ -122,6 +122,42 @@ function RoundBadge({ round }: { round: number }) {
   );
 }
 
+function ShareRoomButton({ roomCode }: { roomCode: string }) {
+  const [copied, setCopied] = useState(false);
+  const roomUrl = `${window.location.origin}/room/${roomCode}`;
+
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: "انضم إلى غرفة Date Judge",
+          text: `ادخل الروم ده: ${roomCode}`,
+          url: roomUrl,
+        });
+        return;
+      }
+
+      await navigator.clipboard.writeText(roomUrl);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      try {
+        await navigator.clipboard.writeText(roomUrl);
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 1800);
+      } catch {
+        window.prompt("انسخ لينك الروم ده", roomUrl);
+      }
+    }
+  };
+
+  return (
+    <BrutalBtn onClick={handleShare} bg={ORANGE} color={BLACK} size="lg">
+      {copied ? "✅ تم نسخ لينك الروم" : "📤 ابعت لينك الروم"}
+    </BrutalBtn>
+  );
+}
+
 /* ─── Screen: Lobby ───────────────────────────────────────────── */
 function LobbyScreen() {
   const { gameState, myPlayerId, startGame } = useSocket();
@@ -166,6 +202,10 @@ function LobbyScreen() {
               {gameState.roomCode}
             </p>
           </div>
+        </div>
+
+        <div className="px-5 pt-4">
+          <ShareRoomButton roomCode={gameState.roomCode} />
         </div>
 
         {/* Players */}
