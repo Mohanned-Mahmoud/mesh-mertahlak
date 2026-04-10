@@ -742,7 +742,7 @@ function VotingScreen() {
   );
 }
 
-/* ─── Scoring Screen ──────────────────────────────────────────── */
+/* ─── Screen: Scoring reveal ──────────────────────────────────── */
 function ScoringScreen() {
   const { gameState, myPlayerId, nextRound } = useSocket();
   if (!gameState?.lastRoundResult) return null;
@@ -751,126 +751,114 @@ function ScoringScreen() {
   const isJudge = myPlayerId === gameState.currentJudgeId;
   const isHost  = myPlayerId === gameState.hostPlayerId;
 
+  // فحص هل في فائز؟
+  const hasWinner = gameState.players.some(p => p.score >= 6);
+
   return (
     <div className="min-h-[100dvh] flex flex-col items-center justify-center p-5 gap-5" dir="rtl">
-      {/* Big result stamp */}
       <motion.div
-        className="w-full max-w-sm rounded-3xl py-7 px-5 text-center flex flex-col items-center gap-4"
-        style={{
-          background: judgeGuessedRight ? GREEN : RED,
-          border: "4px solid #000",
-          boxShadow: "10px 10px 0 #000",
-        }}
-        initial={{ scale: 0, rotate: -14 }}
+        className="w-full max-w-sm rounded-3xl py-7 px-5 text-center"
+        style={{ background: judgeGuessedRight ? GREEN : RED, border: "4px solid #000", boxShadow: "10px 10px 0 #000" }}
+        initial={{ scale: 0, rotate: -12 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ type: "spring", stiffness: 240, damping: 14 }}
       >
-        <motion.div
-          animate={{ scale: [1, 1.18, 1], rotate: [0, 8, -8, 0] }}
-          transition={{ duration: 0.7, delay: 0.3 }}
-        >
-          {judgeGuessedRight ? <IconTarget size={100} /> : <IconLaugh size={100} />}
+        <motion.div className="mb-3" animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }} transition={{ duration: 0.7, delay: 0.3 }}>
+          {judgeGuessedRight ? <IconTarget size={86} /> : <IconLaugh size={86} />}
         </motion.div>
         <h2 className="text-4xl text-white" style={{ fontFamily: "Lalezar", textShadow: "3px 3px 0 #000" }}>
           {judgeGuessedRight ? "القاضي أصابها!" : "القاضي اتخدع!"}
         </h2>
       </motion.div>
 
-      {/* Who was the truth teller */}
-      <motion.div
-        initial={{ y: 30, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.4, type: "spring", stiffness: 220, damping: 18 }}
-        className="w-full max-w-sm rounded-2xl overflow-hidden"
-        style={{ border: "4px solid #000", boxShadow: "8px 8px 0 #000" }}
-      >
-        <div
-          className="py-3 px-5 text-center flex items-center justify-center gap-2"
-          style={{ background: "#f0f0f0", borderBottom: "4px solid #000" }}
-        >
-          <IconEye size={28} />
-          <p className="text-sm font-bold" style={{ fontFamily: "Cairo" }}>
-            صاحب عين العقل الحقيقي كان...
-          </p>
+      <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4, type: "spring", stiffness: 220, damping: 18 }} className="w-full max-w-sm rounded-2xl overflow-hidden" style={{ border: "4px solid #000", boxShadow: "8px 8px 0 #000" }}>
+        <div className="py-3 px-5 text-center" style={{ background: "#f0f0f0", borderBottom: "4px solid #000" }}>
+          <p className="text-sm font-bold" style={{ fontFamily: "Cairo" }}>صاحب عين العقل الحقيقي كان...</p>
         </div>
         <div className="bg-white py-5 px-5 text-center">
-          <p className="text-4xl" style={{ fontFamily: "Lalezar", color: PINK, textShadow: "2px 2px 0 #000" }}>
-            {truthTellerName}
-          </p>
-          {!judgeGuessedRight && (
-            <p className="text-sm mt-2 font-bold opacity-60" style={{ fontFamily: "Cairo" }}>
-              القاضي صوّت على: {votedForName}
-            </p>
-          )}
+          <p className="text-4xl" style={{ fontFamily: "Lalezar", color: PINK, textShadow: "2px 2px 0 #000" }}>{truthTellerName}</p>
+          {!judgeGuessedRight && <p className="text-sm mt-2 font-bold opacity-60" style={{ fontFamily: "Cairo" }}>القاضي صوّت على: {votedForName}</p>}
         </div>
       </motion.div>
 
-      {/* Diamonds earned */}
-      <motion.div
-        initial={{ y: 30, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.65 }}
-        className="w-full max-w-sm space-y-3"
-      >
+      <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.65 }} className="w-full max-w-sm space-y-3">
         {judgeGuessedRight ? (
-          <motion.div
-            initial={{ scale: 0.7, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.85, type: "spring", stiffness: 280 }}
-            className="rounded-2xl py-4 px-5 flex items-center gap-3"
-            style={{ background: YELLOW, border: "4px solid #000", boxShadow: "4px 4px 0 #000" }}
-          >
-            <IconDiamond size={34} />
-            <span className="font-bold text-base" style={{ fontFamily: "Cairo" }}>القاضي كسب الماسة!</span>
+          <motion.div initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.8, type: "spring", stiffness: 280 }} className="rounded-2xl py-4 px-5 flex items-center gap-3" style={{ background: YELLOW, border: "4px solid #000", boxShadow: "4px 4px 0 #000" }}>
+            <IconDiamond size={32} /> <span className="font-bold text-base" style={{ fontFamily: "Cairo" }}>القاضي كسب الماسة!</span>
           </motion.div>
         ) : (
           <>
-            <motion.div
-              initial={{ scale: 0.7, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.85, type: "spring", stiffness: 280 }}
-              className="rounded-2xl py-4 px-5 flex items-center gap-3"
-              style={{ background: GREEN, border: "4px solid #000", boxShadow: "4px 4px 0 #000" }}
-            >
-              <IconDiamond size={34} />
-              <span className="font-bold text-sm" style={{ fontFamily: "Cairo" }}>
-                عين العقل ({truthTellerName}) كسب ماسة!
-              </span>
+            <motion.div initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.8, type: "spring", stiffness: 280 }} className="rounded-2xl py-4 px-5 flex items-center gap-3" style={{ background: GREEN, border: "4px solid #000", boxShadow: "4px 4px 0 #000" }}>
+              <IconDiamond size={32} /> <span className="font-bold text-sm" style={{ fontFamily: "Cairo" }}>عين العقل ({truthTellerName}) كسب ماسة!</span>
             </motion.div>
-            <motion.div
-              initial={{ scale: 0.7, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 1.05, type: "spring", stiffness: 280 }}
-              className="rounded-2xl py-4 px-5 flex items-center gap-3"
-              style={{ background: PINK, border: "4px solid #000", boxShadow: "4px 4px 0 #000" }}
-            >
-              <IconDiamond size={34} />
-              <span className="font-bold text-sm text-white" style={{ fontFamily: "Cairo" }}>
-                المخادع ({votedForName}) كسب ماسة!
-              </span>
+            <motion.div initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 1.0, type: "spring", stiffness: 280 }} className="rounded-2xl py-4 px-5 flex items-center gap-3" style={{ background: PINK, border: "4px solid #000", boxShadow: "4px 4px 0 #000" }}>
+              <IconDiamond size={32} /> <span className="font-bold text-sm text-white" style={{ fontFamily: "Cairo" }}>المخادع ({votedForName}) كسب ماسة!</span>
             </motion.div>
           </>
         )}
       </motion.div>
 
-      {/* Next round */}
       {(isJudge || isHost) && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.4 }}
-          className="w-full max-w-sm"
-        >
-          <button
-            onClick={nextRound}
-            className="btn-brutal w-full py-4 flex items-center justify-center gap-3 text-white"
-            style={{ background: BLUE, fontSize: "1.4rem" }}
-          >
-            <IconRepeat size={30} />
-            الجولة الجاية!
-          </button>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.3 }} className="w-full max-w-sm">
+          <BrutalBtn onClick={nextRound} bg={hasWinner ? PINK : BLUE} size="xl">
+            <span className="inline-flex items-center justify-center gap-2 w-full">
+              {hasWinner ? <IconDiamond size={24} /> : <IconRepeat size={24} />}
+              {hasWinner ? "تتويج الفائز!" : "الجولة الجاية!"}
+            </span>
+          </BrutalBtn>
         </motion.div>
       )}
+    </div>
+  );
+}
+
+/* ─── Screen: Game Over ──────────────────────────────────────── */
+function GameOverScreen() {
+  const { gameState, myPlayerId, socket } = useSocket();
+  if (!gameState) return null;
+
+  const sortedPlayers = [...gameState.players].sort((a, b) => b.score - a.score);
+  const winner = sortedPlayers[0];
+  const isHost = myPlayerId === gameState.hostPlayerId;
+
+  const handlePlayAgain = () => {
+    socket?.emit("play-again", { roomCode: gameState.roomCode });
+  };
+
+  return (
+    <div className="min-h-[100dvh] flex flex-col items-center justify-center p-5 gap-6" dir="rtl">
+      <motion.div
+        initial={{ scale: 0, rotate: -15 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ type: "spring", stiffness: 200, damping: 15 }}
+        className="w-full max-w-sm rounded-3xl py-8 px-5 text-center"
+        style={{ background: YELLOW, border: "4px solid #000", boxShadow: "10px 10px 0 #000" }}
+      >
+        <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 2, repeat: Infinity }} className="mb-4 text-black flex justify-center">
+          <IconDiamond size={100} />
+        </motion.div>
+        <p className="text-xl font-bold mb-1 opacity-70" style={{ fontFamily: "Cairo" }}>الفائز باللعبة هو</p>
+        <h2 className="text-5xl" style={{ fontFamily: "Lalezar", color: BLACK }}>{winner.name}</h2>
+        <div className="mt-4 inline-block bg-white px-4 py-2 rounded-xl" style={{ border: "3px solid #000" }}>
+          <span className="font-bold text-2xl flex items-center gap-2" style={{ fontFamily: "Lalezar" }}>
+            {winner.score} <IconDiamond size={20} />
+          </span>
+        </div>
+      </motion.div>
+
+      <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }} className="w-full max-w-sm mt-4">
+        {isHost ? (
+          <BrutalBtn onClick={handlePlayAgain} bg={GREEN} size="xl">
+            <span className="inline-flex items-center justify-center gap-2 w-full text-black">
+              <IconRepeat size={28} /> العبوا كمان مرة!
+            </span>
+          </BrutalBtn>
+        ) : (
+          <div className="text-center p-4 rounded-xl bg-white/50 font-bold" style={{ border: "3px solid #000", fontFamily: "Cairo" }}>
+            بنستنى الهوست يقرر هتلعبوا تاني ولا لأ...
+          </div>
+        )}
+      </motion.div>
     </div>
   );
 }
@@ -1076,8 +1064,14 @@ export default function Room() {
           </motion.div>
         )}
         {phase === "scoring" && (
-          <motion.div key="scoring" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.22 }}>
+          <motion.div key="scoring" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
             <ScoringScreen />
+          </motion.div>
+        )}
+        {/* ضيف الجزء ده هنا */}
+        {phase === "game-over" && (
+          <motion.div key="game-over" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+            <GameOverScreen />
           </motion.div>
         )}
       </AnimatePresence>

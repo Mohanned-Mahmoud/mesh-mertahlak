@@ -104,7 +104,7 @@ export function initSocketIO(io: SocketIOServer) {
       const room = rooms.get(code)!;
       const existingPlayer = room.players.find((p) => p.id === stablePlayerId);
 
-      // تعديل هنا: نمنع الدخول فقط لو هو لاعب جديد واللعبة بدأت بالفعل
+      // نمنع الدخول فقط لو هو لاعب جديد واللعبة بدأت بالفعل
       if (!existingPlayer && room.phase !== "lobby") {
         socket.emit("error", { message: "Game already in progress" });
         return;
@@ -227,6 +227,14 @@ export function initSocketIO(io: SocketIOServer) {
       const isHost = currentPlayer && currentPlayer.id === room.hostPlayerId;
       if (!isJudge && !isHost) return;
 
+      // فحص هل في فائز؟
+      const hasWinner = room.players.some(p => p.score >= 6);
+      if (hasWinner) {
+        room.phase = "game-over";
+        emitToRoom(io, room, "phase-changed");
+        return;
+      }
+
       room.roundNumber += 1;
       room.currentJudgeIndex = (room.currentJudgeIndex + 1) % room.players.length;
 
@@ -240,6 +248,25 @@ export function initSocketIO(io: SocketIOServer) {
       room.lastRoundResult = null;
       room.phase = "card-display";
 
+      emitToRoom(io, room, "phase-changed");
+    });
+
+    // إضافة الحدث الخاص بإعادة اللعب (الذي كان مفقوداً)
+    socket.on("play-again", ({ roomCode }: { roomCode: string }) => {
+      const room = rooms.get(roomCode.toUpperCase());
+      if (!room) return;
+      const currentPlayer = room.players.find(p => p.socketId === socket.id);
+      
+      // الهوست بس هو اللي يقدر يعيد اللعبة
+      if (!currentPlayer || currentPlayer.id !== room.hostPlayerId) return;
+
+      room.phase = "lobby";
+      room.players.forEach(p => p.score = 0); // تصفير النقاط
+      room.roundNumber = 0;
+      room.usedQuestionIds.clear();
+      room.lastRoundResult = null;
+      room.currentQuestion = null;
+      
       emitToRoom(io, room, "phase-changed");
     });
 
