@@ -879,7 +879,9 @@ function ScoringScreen() {
 export default function Room() {
   const [match, params] = useRoute("/room/:code");
   const [, setLocation] = useLocation();
-  const { gameState, myPlayerId, joinRoom, error } = useSocket();
+  
+  // 1. ضفنا `socket` هنا عشان نراقب حالته
+  const { socket, gameState, myPlayerId, joinRoom, error } = useSocket();
   const joinedRef = useRef(false);
   const [playerName, setPlayerName] = useState(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -890,7 +892,8 @@ export default function Room() {
 
   const handleJoinRoom = () => {
     const trimmedName = playerName.trim();
-    if (!match || !roomCode || !trimmedName) return;
+    // 2. مش هننفذ الدخول غير لو الـ socket موجود
+    if (!match || !roomCode || !trimmedName || !socket) return; 
 
     localStorage.setItem("date-judge-player-name", trimmedName);
     joinRoom(roomCode, trimmedName);
@@ -899,14 +902,16 @@ export default function Room() {
 
   useEffect(() => {
     if (!match || joinedRef.current) return;
-    if (!roomCode) return; // Don't join if no room code
-    if (!playerName.trim()) return; // Don't join if no name typed yet
+    if (!roomCode) return; 
+    if (!playerName.trim()) return; 
+    
+    // 3. السطر السحري: لو خط الاتصال لسه بيقوم، استنى وماتعملش حاجة
+    if (!socket) return; 
 
-    // Auto-join with saved player name or URL param name
     localStorage.setItem("date-judge-player-name", playerName.trim());
     joinRoom(roomCode, playerName.trim());
     joinedRef.current = true;
-  }, [match, roomCode, playerName, joinRoom]);
+  }, [match, roomCode, playerName, joinRoom, socket]); // 4. خلينا الـ useEffect يراقب الـ socket
 
   // Screen for entering name if coming from a shared link without a name
   if (!joinedRef.current) {
@@ -951,7 +956,7 @@ export default function Room() {
                 value={playerName}
                 onChange={(e) => setPlayerName(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && playerName.trim()) handleJoinRoom();
+                  if (e.key === "Enter" && playerName.trim() && socket) handleJoinRoom();
                 }}
                 placeholder="اكتب اسمك هنا..."
                 className="w-full h-14 px-4 rounded-2xl text-base font-bold outline-none"
@@ -966,7 +971,13 @@ export default function Room() {
               />
             </div>
 
-            <BrutalBtn onClick={handleJoinRoom} disabled={!playerName.trim()} bg={GREEN} color={BLACK} size="xl">
+            <BrutalBtn 
+              onClick={handleJoinRoom} 
+              disabled={!playerName.trim() || !socket} // 5. الزرار هيفضل مطفي ثانية لحد ما الاتصال يتم
+              bg={GREEN} 
+              color={BLACK} 
+              size="xl"
+            >
               <span className="inline-flex items-center gap-2">
                 <IconHome size={22} /> ادخل اللعبة
               </span>
