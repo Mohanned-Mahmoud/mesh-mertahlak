@@ -82,8 +82,9 @@ export function initSocketIO(io: SocketIOServer) {
   io.on("connection", (socket: Socket) => {
     logger.info({ socketId: socket.id }, "Socket connected");
 
-    socket.on("join-room", async ({ roomCode, playerName }: { roomCode: string; playerName: string }) => {
+    socket.on("join-room", async ({ roomCode, playerName, playerId }: { roomCode: string; playerName: string; playerId?: string }) => {
       const code = roomCode.toUpperCase();
+      const stablePlayerId = playerId || socket.id; // Fallback to socket ID if not provided
 
       if (!rooms.has(code)) {
         rooms.set(code, {
@@ -107,10 +108,11 @@ export function initSocketIO(io: SocketIOServer) {
         return;
       }
 
-      const existingPlayer = room.players.find((p) => p.id === socket.id);
+      // Check if player already exists by their stable ID
+      const existingPlayer = room.players.find((p) => p.id === stablePlayerId);
       if (!existingPlayer) {
         const newPlayer: Player = {
-          id: socket.id,
+          id: stablePlayerId,
           name: playerName.trim() || "Player",
           score: 0,
           socketId: socket.id,
@@ -120,6 +122,7 @@ export function initSocketIO(io: SocketIOServer) {
           room.hostPlayerId = newPlayer.id;
         }
       } else {
+        // Player is reconnecting - update their socket ID
         existingPlayer.socketId = socket.id;
       }
 
@@ -133,7 +136,10 @@ export function initSocketIO(io: SocketIOServer) {
         socket.emit("error", { message: "Room not found" });
         return;
       }
-      if (room.hostPlayerId !== socket.id) {
+      
+      // Find the player for this socket connection
+      const currentPlayer = room.players.find(p => p.socketId === socket.id);
+      if (!currentPlayer || currentPlayer.id !== room.hostPlayerId) {
         socket.emit("error", { message: "Only the host can start the game" });
         return;
       }
@@ -162,7 +168,8 @@ export function initSocketIO(io: SocketIOServer) {
       const room = rooms.get(roomCode.toUpperCase());
       if (!room) return;
       const judge = room.players[room.currentJudgeIndex];
-      if (judge?.id !== socket.id) return;
+      const currentPlayer = room.players.find(p => p.socketId === socket.id);
+      if (!currentPlayer || currentPlayer.id !== judge?.id) return;
 
       room.phase = "verbal";
       emitToRoom(io, room, "phase-changed");
@@ -172,7 +179,8 @@ export function initSocketIO(io: SocketIOServer) {
       const room = rooms.get(roomCode.toUpperCase());
       if (!room) return;
       const judge = room.players[room.currentJudgeIndex];
-      if (judge?.id !== socket.id) return;
+      const currentPlayer = room.players.find(p => p.socketId === socket.id);
+      if (!currentPlayer || currentPlayer.id !== judge?.id) return;
 
       room.phase = "voting";
       emitToRoom(io, room, "voting-started");
@@ -182,7 +190,8 @@ export function initSocketIO(io: SocketIOServer) {
       const room = rooms.get(roomCode.toUpperCase());
       if (!room) return;
       const judge = room.players[room.currentJudgeIndex];
-      if (judge?.id !== socket.id) return;
+      const currentPlayer = room.players.find(p => p.socketId === socket.id);
+      if (!currentPlayer || currentPlayer.id !== judge?.id) return;
 
       const judgeGuessedRight = votedPlayerId === room.currentTruthTellerId;
       const truthTeller = room.players.find((p) => p.id === room.currentTruthTellerId);
@@ -213,8 +222,9 @@ export function initSocketIO(io: SocketIOServer) {
       const room = rooms.get(roomCode.toUpperCase());
       if (!room) return;
       const judge = room.players[room.currentJudgeIndex];
-      const isJudge = judge?.id === socket.id;
-      const isHost = room.hostPlayerId === socket.id;
+      const currentPlayer = room.players.find(p => p.socketId === socket.id);
+      const isJudge = currentPlayer && currentPlayer.id === judge?.id;
+      const isHost = currentPlayer && currentPlayer.id === room.hostPlayerId;
       if (!isJudge && !isHost) return;
 
       room.roundNumber += 1;
@@ -238,11 +248,12 @@ export function initSocketIO(io: SocketIOServer) {
       for (const [code, room] of rooms.entries()) {
         const idx = room.players.findIndex((p) => p.socketId === socket.id);
         if (idx !== -1) {
+          const disconnectingPlayer = room.players[idx];
           if (room.phase === "lobby") {
             room.players.splice(idx, 1);
             if (room.players.length === 0) {
               rooms.delete(code);
-            } else if (room.hostPlayerId === socket.id && room.players.length > 0) {
+            } else if (room.hostPlayerId === disconnectingPlayer.id && room.players.length > 0) {
               room.hostPlayerId = room.players[0].id;
             }
             if (rooms.has(code)) {

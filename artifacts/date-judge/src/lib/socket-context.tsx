@@ -1,6 +1,18 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
 
+// Generate or retrieve a stable player ID that persists across sessions
+function getOrCreatePlayerId(): string {
+  const key = 'date-judge-player-uuid';
+  let id = localStorage.getItem(key);
+  if (!id) {
+    // Generate a simple UUID-like ID
+    id = `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    localStorage.setItem(key, id);
+  }
+  return id;
+}
+
 export type Player = {
   id: string;
   name: string;
@@ -95,12 +107,10 @@ export function SocketProvider({ children }: { children: ReactNode }) {
 
   const joinRoom = (roomCode: string, playerName: string) => {
     if (socket) {
-      socket.emit('join-room', { roomCode, playerName });
-      // We might want to store something in local storage or get ID back
-      // The server will probably associate this socket connection with the player
-      // We assume socket.id is the player ID for now, or the server tells us.
-      setMyPlayerId(socket.id || 'temp');
-      localStorage.setItem('date-judge-player-id', socket.id || 'temp');
+      const stablePlayerId = getOrCreatePlayerId();
+      socket.emit('join-room', { roomCode, playerName, playerId: stablePlayerId });
+      setMyPlayerId(stablePlayerId);
+      localStorage.setItem('date-judge-player-id', stablePlayerId);
     }
   };
 
