@@ -41,7 +41,7 @@ const frontendPath = path.join(process.cwd(), "artifacts/date-judge/dist/public"
 app.use(express.static(frontendPath));
 
 // أي مسار تاني مش API هيوديك على الـ index.html بتاع الرياكت
-app.get("*", (req, res) => {
+app.get(/(.*)/, (req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });
 // ------------------------------------
