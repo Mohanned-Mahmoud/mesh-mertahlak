@@ -267,7 +267,7 @@ export default function Landing() {
               </div>
               <h3 style={{ fontFamily: "Lalezar", fontSize: "1.5rem" }}>لم الشلة</h3>
               <p style={{ fontFamily: "Cairo", fontWeight: 700, fontSize: "0.88rem", opacity: 0.92, lineHeight: 1.6 }}>
-                اعملوا روم وابعوا اللينك لبعض، بدل ما تدفعوا فلوس في اللعبة الأصلية.
+                اعملوا روم وابعتوا اللينك لبعض، بدل ما تدفعوا فلوس في اللعبة الأصلية.
               </p>
               <div
                 className="px-3 py-1 rounded-full text-xs font-bold"
@@ -429,7 +429,7 @@ export default function Landing() {
                 maxWidth: 480,
               }}
             >
-              الأونلاين تمام للي معهمش فلوس زينا، بس لما تكون الشلة موجودة فعلًا
+              الأونلاين تمام للي معهمش فلوس زي حالاتنا، بس لما تكون الشلة موجودة فعلًا
               وعندك الكروت في إيدك، الجو بيبقى غير خالص.
               الضحك أعلى، التلاعب أوضح، والفضيحة أحلى.
             </p>
