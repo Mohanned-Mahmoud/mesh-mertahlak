@@ -1,20 +1,6 @@
 services:
   - type: web
-    name: date-judge-frontend
-    plan: free
-    runtime: node
-    buildCommand: corepack pnpm install --frozen-lockfile && corepack pnpm run build:frontend
-    startCommand: npx --yes serve -s artifacts/date-judge/dist/public -l $PORT
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: VITE_API_BASE_URL
-        value: https://date-judge-api.onrender.com/api
-      - key: VITE_SOCKET_URL
-        value: https://date-judge-api.onrender.com
-
-  - type: web
-    name: date-judge-api
+    name: mesh-mertahlak
     plan: free
     runtime: docker
     region: oregon
@@ -25,4 +11,9 @@ services:
         value: production
       - key: DATABASE_URL
         sync: false
+      # المتغيرات دي عشان الفرونت اند وقت البيلد يعرف يكلم الباك اند على نفس الدومين
+      - key: VITE_API_BASE_URL
+        value: /api
+      - key: VITE_SOCKET_URL
+        value: /
     healthCheckPath: /api/health

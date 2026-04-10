@@ -33,13 +33,13 @@ Both services are defined in `render.yaml` and deploy to the same Render project
 
 Render will automatically create both services:
 
-**Service 1: Frontend (date-judge-frontend)**
+**Service 1: Frontend (mesh-mertahlak)**
 - Runtime: Node
 - Port: 3000
 - Build: `pnpm install --frozen-lockfile && pnpm run build:frontend`
 - Start: `npm install -g serve && serve -s artifacts/date-judge/dist/public -l 3000`
 
-**Service 2: Backend (date-judge-api)**
+**Service 2: Backend (mesh-mertahlak-api)**
 - Runtime: Docker
 - Port: auto-detected from Dockerfile
 - Build: Uses `artifacts/api-server/Dockerfile`
@@ -48,12 +48,12 @@ Render will automatically create both services:
 
 Render will pre-populate most environment variables from `render.yaml`, but you must set:
 
-**Backend Service (date-judge-api) - Secrets:**
+**Backend Service (mesh-mertahlak-api) - Secrets:**
 - `DATABASE_URL`: Your Neon PostgreSQL connection string (mark as **Secret**)
 
-**Frontend Service (date-judge-frontend) - Auto-populated:**
-- `VITE_API_BASE_URL`: `https://date-judge-api.onrender.com/api`
-- `VITE_SOCKET_URL`: `https://date-judge-api.onrender.com`
+**Frontend Service (mesh-mertahlak) - Auto-populated:**
+- `VITE_API_BASE_URL`: `https://mesh-mertahlak-api.onrender.com/api`
+- `VITE_SOCKET_URL`: `https://mesh-mertahlak-api.onrender.com`
 
 ### 4. Deploy
 
@@ -69,8 +69,8 @@ If Render doesn't auto-detect `render.yaml`, manually create both web services:
 - Start Command: `npm install -g serve && serve -s artifacts/date-judge/dist/public -l 3000`
 - Environment Variables:
   - `NODE_ENV`: `production`
-  - `VITE_API_BASE_URL`: `https://date-judge-api.onrender.com/api`
-  - `VITE_SOCKET_URL`: `https://date-judge-api.onrender.com`
+  - `VITE_API_BASE_URL`: `https://mesh-mertahlak-api.onrender.com/api`
+  - `VITE_SOCKET_URL`: `https://mesh-mertahlak-api.onrender.com`
   - `PNPM_HOME`: `/app/.pnpm`
   - `PATH`: `/app/.pnpm:$PATH`
 
@@ -98,23 +98,23 @@ pnpm run deploy:render:backend
 
 ## Environment Variables Reference
 
-### Backend (date-judge-api)
+### Backend (mesh-mertahlak-api)
 - `NODE_ENV`: Set to `production`
 - `DATABASE_URL`: PostgreSQL connection string (mark as Secret in Render dashboard)
 
-### Frontend (date-judge-frontend)
+### Frontend (mesh-mertahlak)
 - `NODE_ENV`: Set to `production`
-- `VITE_API_BASE_URL`: Backend API URL (e.g., `https://date-judge-api.onrender.com/api`)
-- `VITE_SOCKET_URL`: Backend Socket.IO URL (e.g., `https://date-judge-api.onrender.com`)
+- `VITE_API_BASE_URL`: Backend API URL (e.g., `https://mesh-mertahlak-api.onrender.com/api`)
+- `VITE_SOCKET_URL`: Backend Socket.IO URL (e.g., `https://mesh-mertahlak-api.onrender.com`)
 - `PNPM_HOME`: `/app/.pnpm` (for pnpm support)
 - `PATH`: `/app/.pnpm:$PATH` (for pnpm support)
 
 ## Accessing Your Services
 
 Once deployed:
-- **Frontend**: https://date-judge-frontend.onrender.com
-- **Backend API**: https://date-judge-api.onrender.com/api
-- **Socket.IO**: https://date-judge-api.onrender.com
+- **Frontend**: https://mesh-mertahlak.onrender.com
+- **Backend API**: https://mesh-mertahlak-api.onrender.com/api
+- **Socket.IO**: https://mesh-mertahlak-api.onrender.com
 
 ## Troubleshooting
 

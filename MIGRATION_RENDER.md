@@ -96,8 +96,8 @@ pnpm run deploy:render
 ### Frontend Service
 ```
 NODE_ENV=production
-VITE_API_BASE_URL=https://date-judge-api.onrender.com/api
-VITE_SOCKET_URL=https://date-judge-api.onrender.com
+VITE_API_BASE_URL=https://mesh-mertahlak-api.onrender.com/api
+VITE_SOCKET_URL=https://mesh-mertahlak-api.onrender.com
 PNPM_HOME=/app/.pnpm
 PATH=/app/.pnpm:$PATH
 ```
@@ -111,9 +111,9 @@ DATABASE_URL=postgresql://... (your Neon connection string, marked Secret)
 ## Accessing Deployed Services
 
 Once both services are deployed:
-- **Frontend**: https://date-judge-frontend.onrender.com
-- **Backend API**: https://date-judge-api.onrender.com/api
-- **Backend Socket.IO**: https://date-judge-api.onrender.com
+- **Frontend**: https://mesh-mertahlak.onrender.com
+- **Backend API**: https://mesh-mertahlak-api.onrender.com/api
+- **Backend Socket.IO**: https://mesh-mertahlak-api.onrender.com
 
 ## Troubleshooting
 

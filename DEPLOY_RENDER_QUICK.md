@@ -24,17 +24,17 @@ pnpm run deploy:render
 ## URLs After Deployment
 
 ```
-Frontend: https://date-judge-frontend.onrender.com
-Backend:  https://date-judge-api.onrender.com/api
-Socket.IO: https://date-judge-api.onrender.com
+Frontend: https://mesh-mertahlak.onrender.com
+Backend:  https://mesh-mertahlak-api.onrender.com/api
+Socket.IO: https://mesh-mertahlak-api.onrender.com
 ```
 
 ## Essential Environment Variables
 
 **Frontend Service:**
 - `NODE_ENV=production`
-- `VITE_API_BASE_URL=https://date-judge-api.onrender.com/api`
-- `VITE_SOCKET_URL=https://date-judge-api.onrender.com`
+- `VITE_API_BASE_URL=https://mesh-mertahlak-api.onrender.com/api`
+- `VITE_SOCKET_URL=https://mesh-mertahlak-api.onrender.com`
 - `PNPM_HOME=/app/.pnpm`
 - `PATH=/app/.pnpm:$PATH`
 

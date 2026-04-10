@@ -70,7 +70,7 @@ try {
 // Deploy frontend
 if (target === 'frontend' || target === 'all') {
   run(
-    'render deploy --service date-judge-frontend',
+    'render deploy --service mesh-mertahlak',
     'Deploying frontend to Render'
   );
 }
@@ -78,7 +78,7 @@ if (target === 'frontend' || target === 'all') {
 // Deploy backend
 if (target === 'backend' || target === 'all') {
   run(
-    'render deploy --service date-judge-api',
+    'render deploy --service mesh-mertahlak-api',
     'Deploying backend API to Render'
   );
 }
@@ -86,9 +86,9 @@ if (target === 'backend' || target === 'all') {
 console.log('\n\n✨ Deployment complete!');
 console.log('===========================');
 console.log('\n📍 Access your services:');
-console.log('   Frontend: https://date-judge-frontend.onrender.com');
-console.log('   Backend:  https://date-judge-api.onrender.com/api');
-console.log('   Socket.IO: https://date-judge-api.onrender.com');
+console.log('   Frontend: https://mesh-mertahlak.onrender.com');
+console.log('   Backend:  https://mesh-mertahlak-api.onrender.com/api');
+console.log('   Socket.IO: https://mesh-mertahlak-api.onrender.com');
 
 console.log('\n💡 Next steps:');
 console.log('   1. Verify environment variables are set in Render dashboard');
