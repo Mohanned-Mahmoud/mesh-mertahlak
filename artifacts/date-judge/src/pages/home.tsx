@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -14,24 +14,40 @@ function generateRoomCode() {
 export default function Home() {
   const [, setLocation] = useLocation();
   const [view, setView] = useState<"main" | "create" | "join">("main");
-  const [playerName, setPlayerName] = useState("");
+  
+  // بنحاول نجيب اسم اللاعب من المتصفح لو كان لعب قبل كده
+  const [playerName, setPlayerName] = useState(() => {
+    return localStorage.getItem("date-judge-player-name") || "";
+  });
+  
   const [roomCode, setRoomCode] = useState("");
 
   const handleCreateRoom = () => {
-    if (!playerName.trim()) return;
+    const trimmedName = playerName.trim();
+    if (!trimmedName) return;
+    
+    // حفظ الاسم في المتصفح عشان منسألوش تاني
+    localStorage.setItem("date-judge-player-name", trimmedName);
+    
     const code = generateRoomCode();
-    setLocation(`/room/${code}?name=${encodeURIComponent(playerName.trim())}&action=create`);
+    setLocation(`/room/${code}?name=${encodeURIComponent(trimmedName)}&action=create`);
   };
 
   const handleJoinRoom = () => {
-    if (!playerName.trim() || roomCode.length !== 4) return;
-    setLocation(`/room/${roomCode.toUpperCase()}?name=${encodeURIComponent(playerName.trim())}&action=join`);
+    const trimmedName = playerName.trim();
+    if (!trimmedName || roomCode.length !== 4) return;
+    
+    // حفظ الاسم في المتصفح
+    localStorage.setItem("date-judge-player-name", trimmedName);
+    
+    setLocation(`/room/${roomCode.toUpperCase()}?name=${encodeURIComponent(trimmedName)}&action=join`);
   };
 
   return (
     <div
       className="min-h-[100dvh] w-full flex flex-col items-center justify-center p-5 overflow-hidden relative"
       style={{ background: "linear-gradient(135deg, #FFE500 0%, #FF9500 100%)" }}
+      dir="rtl"
     >
       {/* Decorative blobs */}
       <motion.div
@@ -61,25 +77,31 @@ export default function Home() {
         className="card-brutal w-full max-w-sm relative z-10 overflow-hidden"
         style={{ padding: 0 }}
       >
-        {/* Header strip */}
+        {/* Header strip with Image */}
         <div
-          className="w-full text-center py-6 px-5"
-          style={{ background: "hsl(330,100%,50%)", borderBottom: "4px solid #000" }}
+          className="w-full relative" // شيلنا الـ flex justify-center من هنا
+          style={{
+            background: "hsl(330,100%,50%)",
+            borderBottom: "4px solid #000",
+            height: 240,
+            overflow: "visible",
+          }}
         >
-          <motion.h1
-            className="text-5xl text-white"
-            style={{ fontFamily: "Lalezar", textShadow: "3px 3px 0 #000", lineHeight: 1.2 }}
-            animate={{ y: [0, -4, 0] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-          >
-            قاضي البلح
-          </motion.h1>
-          <p
-            className="text-white text-base mt-1 font-bold"
-            style={{ fontFamily: "Cairo", opacity: 0.9, textShadow: "1px 1px 0 #000" }}
-          >
-            The Date Judge
-          </p>
+          <motion.img
+            src="/judge-character.png"
+            alt="قاضي البلح"
+            style={{
+              position: "absolute",
+              bottom: 0, // لازقة من تحت
+              right: 0,  // لازقة من اليمين بالظبط (لو عايز تسيب مسافة صغيرة خليها 10 مثلا)
+              width: 280,
+              height: "auto",
+              filter: "drop-shadow(-3px 0px 6px rgba(0,0,0,0.35))",
+            }}
+            animate={{ y: [0, -5, 0] }}
+            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+            draggable={false}
+          />
         </div>
 
         <div className="p-6">
@@ -103,8 +125,10 @@ export default function Home() {
                   <input
                     value={playerName}
                     onChange={(e) => setPlayerName(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter" && playerName.trim()) setView("create"); }}
-                    placeholder="ادخل اسمك هنا..."
+                    onKeyDown={(e) => { 
+                      if (e.key === "Enter" && playerName.trim()) setView("create"); 
+                    }}
+                    placeholder="اكتب اسمك هنا..."
                     className="w-full h-14 px-4 rounded-2xl text-base font-bold outline-none"
                     style={{
                       fontFamily: "Cairo",
@@ -119,7 +143,7 @@ export default function Home() {
                 <button
                   onClick={() => playerName.trim() && setView("create")}
                   disabled={!playerName.trim()}
-                  className="btn-brutal w-full py-4 text-white"
+                  className="btn-brutal w-full py-4 text-white disabled:opacity-50"
                   style={{ background: "hsl(330,100%,50%)", fontSize: "1.4rem" }}
                 >
                   إنشاء غرفة جديدة
@@ -128,7 +152,7 @@ export default function Home() {
                 <button
                   onClick={() => playerName.trim() && setView("join")}
                   disabled={!playerName.trim()}
-                  className="btn-brutal w-full py-4 text-white"
+                  className="btn-brutal w-full py-4 text-white disabled:opacity-50"
                   style={{ background: "hsl(218,100%,55%)", fontSize: "1.4rem" }}
                 >
                   انضم لغرفة
@@ -201,7 +225,9 @@ export default function Home() {
                   <input
                     value={roomCode}
                     onChange={(e) => setRoomCode(e.target.value.toUpperCase().replace(/[^A-Z]/g, ""))}
-                    onKeyDown={(e) => { if (e.key === "Enter" && roomCode.length === 4) handleJoinRoom(); }}
+                    onKeyDown={(e) => { 
+                      if (e.key === "Enter" && roomCode.length === 4) handleJoinRoom(); 
+                    }}
                     placeholder="ABCD"
                     maxLength={4}
                     className="w-full h-16 px-4 rounded-2xl text-3xl font-bold outline-none text-center tracking-[0.35em]"
@@ -220,7 +246,7 @@ export default function Home() {
                 <button
                   onClick={handleJoinRoom}
                   disabled={!playerName.trim() || roomCode.length !== 4}
-                  className="btn-brutal w-full py-4 text-white"
+                  className="btn-brutal w-full py-4 text-white disabled:opacity-50"
                   style={{ background: "hsl(218,100%,55%)", fontSize: "1.4rem" }}
                 >
                   انضم للعبة
