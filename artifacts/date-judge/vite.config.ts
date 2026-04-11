@@ -31,6 +31,7 @@ export default defineConfig({
         theme_color: '#FF9500',
         background_color: '#ffffff',
         display: 'standalone',
+        start_url: '/', // <-- Required for the browser to trigger install
         dir: 'rtl',
         lang: 'ar',
         icons: [
@@ -45,6 +46,10 @@ export default defineConfig({
             type: 'image/png'
           }
         ]
+      },
+      devOptions: {
+        enabled: true, // <-- Allows the PWA to work in `npm run dev`
+        type: 'module'
       }
     }),
     ...(process.env.NODE_ENV !== "production" &&
