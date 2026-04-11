@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SocketProvider } from "@/lib/socket-context";
 import SplashScreen from "@/components/splash-screen";
-import PwaInstallButton from "@/components/pwa-install-button";
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Landing = lazy(() => import("@/pages/landing"));
@@ -38,7 +37,6 @@ function App() {
               <Router />
             </WouterRouter>
           </Suspense>
-          <PwaInstallButton />
         </SocketProvider>
         <Toaster />
       </TooltipProvider>
