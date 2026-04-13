@@ -24,6 +24,10 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'favicon.svg', 'apple-touch-icon.png', 'judge-character.png', 'hero-character.gif', 'card-game.gif'],
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        maximumFileSizeToCacheInBytes: 11 * 1024 * 1024
+      },
       manifest: {
         name: 'مش مرتاحلك',
         short_name: 'مش مرتاحلك',
@@ -43,7 +47,8 @@ export default defineConfig({
           {
             src: 'web-app-manifest-512x512.png',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any maskable'
           }
         ]
       },
