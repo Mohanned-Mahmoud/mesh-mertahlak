@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+import { VitePWA } from "vite-plugin-pwa"; // Add this import
 
 const rawPort = process.env.PORT;
 const port = rawPort ? Number(rawPort) : 3000;
@@ -19,6 +20,38 @@ export default defineConfig({
     react(),
     tailwindcss(),
     runtimeErrorOverlay(),
+    // Add the PWA plugin here
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico', 'favicon.svg', 'apple-touch-icon.png', 'judge-character.png', 'hero-character.gif', 'card-game.gif'],
+      manifest: {
+        name: 'مش مرتاحلك',
+        short_name: 'مش مرتاحلك',
+        description: 'لعبة مش مرتاحلك',
+        theme_color: '#FF9500',
+        background_color: '#ffffff',
+        display: 'standalone',
+        start_url: '/', // <-- Required for the browser to trigger install
+        dir: 'rtl',
+        lang: 'ar',
+        icons: [
+          {
+            src: 'web-app-manifest-192x192.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: 'web-app-manifest-512x512.png',
+            sizes: '512x512',
+            type: 'image/png'
+          }
+        ]
+      },
+      devOptions: {
+        enabled: true, // <-- Allows the PWA to work in `npm run dev`
+        type: 'module'
+      }
+    }),
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined
       ? [
