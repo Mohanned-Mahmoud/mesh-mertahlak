@@ -23,6 +23,7 @@ export default defineConfig({
     // Add the PWA plugin here
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: 'auto',
       includeAssets: ['favicon.ico', 'favicon.svg', 'apple-touch-icon.png', 'judge-character.png', 'hero-character.gif', 'card-game.gif'],
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
