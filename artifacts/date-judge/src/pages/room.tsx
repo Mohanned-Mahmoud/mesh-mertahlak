@@ -792,7 +792,7 @@ function ScoringScreen() {
               <IconDiamond size={32} /> <span className="font-bold text-sm" style={{ fontFamily: "Cairo" }}>عين العقل ({truthTellerName}) كسب ماسة!</span>
             </motion.div>
             <motion.div initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 1.0, type: "spring", stiffness: 280 }} className="rounded-2xl py-4 px-5 flex items-center gap-3" style={{ background: PINK, border: "4px solid #000", boxShadow: "4px 4px 0 #000" }}>
-              <IconDiamond size={32} /> <span className="font-bold text-sm text-white" style={{ fontFamily: "Cairo" }}>المخادع ({votedForName}) كسب ماسة!</span>
+              <IconDiamond size={32} /> <span className="font-bold text-sm text-white" style={{ fontFamily: "Cairo" }}>اللي الحكم اختاره ({votedForName}) كسب ماسة!</span>
             </motion.div>
           </>
         )}

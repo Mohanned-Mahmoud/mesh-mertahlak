@@ -208,6 +208,7 @@ export function initSocketIO(io: SocketIOServer) {
       if (judgeGuessedRight) {
         if (judge) judge.score += 1;
       } else {
+        // When the judge is wrong, only truth-teller and the voted player can score.
         if (truthTeller) truthTeller.score += 1;
         if (votedFor && votedFor.id !== room.currentTruthTellerId) {
           votedFor.score += 1;
