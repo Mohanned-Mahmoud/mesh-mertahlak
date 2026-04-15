@@ -137,7 +137,7 @@ function Scoreboard({ players }: { players: { id: string; name: string; score: n
 function RoundBadge({ round }: { round: number }) {
   return (
     <div
-      className="fixed top-3 right-3 z-50 px-3 py-1.5 rounded-xl font-bold text-sm"
+      className="fixed top-20 right-3 z-50 px-3 py-1.5 rounded-xl font-bold text-sm"
       style={{
         fontFamily: "Cairo",
         background: BLUE,
