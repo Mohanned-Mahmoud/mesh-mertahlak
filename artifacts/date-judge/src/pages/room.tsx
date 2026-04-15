@@ -71,7 +71,7 @@ function Scoreboard({ players }: { players: { id: string; name: string; score: n
   const sorted = [...players].sort((a, b) => b.score - a.score);
 
   return (
-    <div className="fixed top-3 left-3 z-50" dir="rtl">
+    <div className="relative" dir="rtl">
       <motion.button
         whileTap={{ scale: 0.88, x: 3, y: 3 }}
         onClick={() => setOpen((v) => !v)}
@@ -137,7 +137,7 @@ function Scoreboard({ players }: { players: { id: string; name: string; score: n
 function RoundBadge({ round }: { round: number }) {
   return (
     <div
-      className="fixed top-20 right-3 z-50 px-3 py-1.5 rounded-xl font-bold text-sm"
+      className="px-3 py-2 rounded-xl font-bold text-sm"
       style={{
         fontFamily: "Cairo",
         background: BLUE,
@@ -1092,9 +1092,18 @@ export default function Room() {
       className="relative min-h-[100dvh]"
       style={{ background: "linear-gradient(135deg, #FFE500 0%, #FF9500 100%)" }}
     >
-      {gameState && <Scoreboard players={gameState.players} />}
-      {phase !== "lobby" && <RoundBadge round={gameState!.roundNumber} />}
+      {gameState && (
+        <div className="fixed top-3 left-3 right-3 z-50 flex items-start justify-between gap-3" dir="rtl">
+          <div className="flex-shrink-0">
+            {phase !== "lobby" ? <RoundBadge round={gameState.roundNumber} /> : <div className="h-[46px]" />}
+          </div>
+          <div className="flex-shrink-0">
+            <Scoreboard players={gameState.players} />
+          </div>
+        </div>
+      )}
 
+      <div className="pt-[82px]">
       <AnimatePresence mode="wait">
         {phase === "lobby" && (
           <motion.div key="lobby" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.22 }}>
@@ -1133,6 +1142,7 @@ export default function Room() {
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </div>
   );
 }
