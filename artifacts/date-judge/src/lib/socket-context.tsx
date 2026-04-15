@@ -51,6 +51,7 @@ type SocketContextType = {
   startVoting: () => void;
   submitVote: (votedPlayerId: string) => void;
   nextRound: () => void;
+  transferHost: (newHostPlayerId: string) => void;
   error: string | null;
 };
 
@@ -151,6 +152,12 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const transferHost = (newHostPlayerId: string) => {
+    if (socket && gameState) {
+      socket.emit('transfer-host', { roomCode: gameState.roomCode, newHostPlayerId });
+    }
+  };
+
   return (
     <SocketContext.Provider
       value={{
@@ -164,6 +171,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         startVoting,
         submitVote,
         nextRound,
+        transferHost,
         error
       }}
     >

@@ -31,9 +31,10 @@ export type Room = {
 };
 
 const rooms = new Map<string, Room>();
+const pendingDisconnectRemovals = new Map<string, ReturnType<typeof setTimeout>>();
+const DISCONNECT_GRACE_MS = 12_000;
 
 function buildStateForPlayer(room: Room, playerId: string) {
-  const player = room.players.find((p) => p.id === playerId);
   const currentJudge = room.players[room.currentJudgeIndex] ?? null;
 
   let myRole: "judge" | "truth-teller" | "deceiver" | null = null;
@@ -84,7 +85,14 @@ export function initSocketIO(io: SocketIOServer) {
 
     socket.on("join-room", async ({ roomCode, playerName, playerId }: { roomCode: string; playerName: string; playerId?: string }) => {
       const code = roomCode.toUpperCase();
-      const stablePlayerId = playerId || socket.id; // Fallback to socket ID if not provided
+      const stablePlayerId = playerId || socket.id;
+
+      const pendingKey = `${code}:${stablePlayerId}`;
+      const pendingRemoval = pendingDisconnectRemovals.get(pendingKey);
+      if (pendingRemoval) {
+        clearTimeout(pendingRemoval);
+        pendingDisconnectRemovals.delete(pendingKey);
+      }
 
       if (!rooms.has(code)) {
         rooms.set(code, {
@@ -104,7 +112,6 @@ export function initSocketIO(io: SocketIOServer) {
       const room = rooms.get(code)!;
       const existingPlayer = room.players.find((p) => p.id === stablePlayerId);
 
-      // نمنع الدخول فقط لو هو لاعب جديد واللعبة بدأت بالفعل
       if (!existingPlayer && room.phase !== "lobby") {
         socket.emit("error", { message: "Game already in progress" });
         return;
@@ -122,11 +129,30 @@ export function initSocketIO(io: SocketIOServer) {
           room.hostPlayerId = newPlayer.id;
         }
       } else {
-        // Player is reconnecting - update their socket ID
         existingPlayer.socketId = socket.id;
       }
 
       socket.join(code);
+      emitToRoom(io, room, "room-joined");
+    });
+
+    socket.on("transfer-host", ({ roomCode, newHostPlayerId }: { roomCode: string; newHostPlayerId: string }) => {
+      const room = rooms.get(roomCode.toUpperCase());
+      if (!room) return;
+
+      const currentPlayer = room.players.find((p) => p.socketId === socket.id);
+      if (!currentPlayer || currentPlayer.id !== room.hostPlayerId) {
+        socket.emit("error", { message: "Only the host can transfer host role" });
+        return;
+      }
+
+      const nextHost = room.players.find((p) => p.id === newHostPlayerId);
+      if (!nextHost) {
+        socket.emit("error", { message: "Selected player not found" });
+        return;
+      }
+
+      room.hostPlayerId = nextHost.id;
       emitToRoom(io, room, "room-joined");
     });
 
@@ -136,9 +162,8 @@ export function initSocketIO(io: SocketIOServer) {
         socket.emit("error", { message: "Room not found" });
         return;
       }
-      
-      // Find the player for this socket connection
-      const currentPlayer = room.players.find(p => p.socketId === socket.id);
+
+      const currentPlayer = room.players.find((p) => p.socketId === socket.id);
       if (!currentPlayer || currentPlayer.id !== room.hostPlayerId) {
         socket.emit("error", { message: "Only the host can start the game" });
         return;
@@ -168,7 +193,7 @@ export function initSocketIO(io: SocketIOServer) {
       const room = rooms.get(roomCode.toUpperCase());
       if (!room) return;
       const judge = room.players[room.currentJudgeIndex];
-      const currentPlayer = room.players.find(p => p.socketId === socket.id);
+      const currentPlayer = room.players.find((p) => p.socketId === socket.id);
       if (!currentPlayer || currentPlayer.id !== judge?.id) return;
 
       room.phase = "verbal";
@@ -207,7 +232,7 @@ export function initSocketIO(io: SocketIOServer) {
       const room = rooms.get(roomCode.toUpperCase());
       if (!room) return;
       const judge = room.players[room.currentJudgeIndex];
-      const currentPlayer = room.players.find(p => p.socketId === socket.id);
+      const currentPlayer = room.players.find((p) => p.socketId === socket.id);
       if (!currentPlayer || currentPlayer.id !== judge?.id) return;
 
       room.phase = "voting";
@@ -218,7 +243,7 @@ export function initSocketIO(io: SocketIOServer) {
       const room = rooms.get(roomCode.toUpperCase());
       if (!room) return;
       const judge = room.players[room.currentJudgeIndex];
-      const currentPlayer = room.players.find(p => p.socketId === socket.id);
+      const currentPlayer = room.players.find((p) => p.socketId === socket.id);
       if (!currentPlayer || currentPlayer.id !== judge?.id) return;
 
       const judgeGuessedRight = votedPlayerId === room.currentTruthTellerId;
@@ -236,7 +261,6 @@ export function initSocketIO(io: SocketIOServer) {
       if (judgeGuessedRight) {
         if (judge) judge.score += 1;
       } else {
-        // When the judge is wrong, only truth-teller and the voted player can score.
         if (truthTeller) truthTeller.score += 1;
         if (votedFor && votedFor.id !== room.currentTruthTellerId) {
           votedFor.score += 1;
@@ -251,13 +275,12 @@ export function initSocketIO(io: SocketIOServer) {
       const room = rooms.get(roomCode.toUpperCase());
       if (!room) return;
       const judge = room.players[room.currentJudgeIndex];
-      const currentPlayer = room.players.find(p => p.socketId === socket.id);
+      const currentPlayer = room.players.find((p) => p.socketId === socket.id);
       const isJudge = currentPlayer && currentPlayer.id === judge?.id;
       const isHost = currentPlayer && currentPlayer.id === room.hostPlayerId;
       if (!isJudge && !isHost) return;
 
-      // فحص هل في فائز؟
-      const hasWinner = room.players.some(p => p.score >= 6);
+      const hasWinner = room.players.some((p) => p.score >= 6);
       if (hasWinner) {
         room.phase = "game-over";
         emitToRoom(io, room, "phase-changed");
@@ -280,22 +303,20 @@ export function initSocketIO(io: SocketIOServer) {
       emitToRoom(io, room, "phase-changed");
     });
 
-    // إضافة الحدث الخاص بإعادة اللعب (الذي كان مفقوداً)
     socket.on("play-again", ({ roomCode }: { roomCode: string }) => {
       const room = rooms.get(roomCode.toUpperCase());
       if (!room) return;
-      const currentPlayer = room.players.find(p => p.socketId === socket.id);
-      
-      // الهوست بس هو اللي يقدر يعيد اللعبة
+      const currentPlayer = room.players.find((p) => p.socketId === socket.id);
+
       if (!currentPlayer || currentPlayer.id !== room.hostPlayerId) return;
 
       room.phase = "lobby";
-      room.players.forEach(p => p.score = 0); // تصفير النقاط
+      room.players.forEach((p) => (p.score = 0));
       room.roundNumber = 0;
       room.usedQuestionIds.clear();
       room.lastRoundResult = null;
       room.currentQuestion = null;
-      
+
       emitToRoom(io, room, "phase-changed");
     });
 
@@ -303,20 +324,40 @@ export function initSocketIO(io: SocketIOServer) {
       logger.info({ socketId: socket.id }, "Socket disconnected");
       for (const [code, room] of rooms.entries()) {
         const idx = room.players.findIndex((p) => p.socketId === socket.id);
-        if (idx !== -1) {
-          const disconnectingPlayer = room.players[idx];
-          if (room.phase === "lobby") {
-            room.players.splice(idx, 1);
-            if (room.players.length === 0) {
-              rooms.delete(code);
-            } else if (room.hostPlayerId === disconnectingPlayer.id && room.players.length > 0) {
-              room.hostPlayerId = room.players[0].id;
-            }
-            if (rooms.has(code)) {
-              emitToRoom(io, room, "room-joined");
-            }
+        if (idx === -1) continue;
+
+        const disconnectingPlayer = room.players[idx];
+        const pendingKey = `${code}:${disconnectingPlayer.id}`;
+        if (pendingDisconnectRemovals.has(pendingKey)) continue;
+
+        const disconnectedSocketId = socket.id;
+        const timeout = setTimeout(() => {
+          pendingDisconnectRemovals.delete(pendingKey);
+
+          const latestRoom = rooms.get(code);
+          if (!latestRoom) return;
+
+          const latestIdx = latestRoom.players.findIndex((p) => p.id === disconnectingPlayer.id);
+          if (latestIdx === -1) return;
+
+          const latestPlayer = latestRoom.players[latestIdx];
+          if (latestPlayer.socketId !== disconnectedSocketId) return;
+
+          latestRoom.players.splice(latestIdx, 1);
+
+          if (latestRoom.players.length === 0) {
+            rooms.delete(code);
+            return;
           }
-        }
+
+          if (latestRoom.hostPlayerId === disconnectingPlayer.id) {
+            latestRoom.hostPlayerId = latestRoom.players[0].id;
+          }
+
+          emitToRoom(io, latestRoom, "room-joined");
+        }, DISCONNECT_GRACE_MS);
+
+        pendingDisconnectRemovals.set(pendingKey, timeout);
       }
     });
   });

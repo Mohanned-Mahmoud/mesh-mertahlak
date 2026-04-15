@@ -195,7 +195,7 @@ function ShareRoomButton({ roomCode }: { roomCode: string }) {
 
 /* ─── Lobby ───────────────────────────────────────────────────── */
 function LobbyScreen() {
-  const { gameState, myPlayerId, startGame } = useSocket();
+  const { gameState, myPlayerId, startGame, transferHost } = useSocket();
   if (!gameState) return null;
 
   const isHost = myPlayerId === gameState.hostPlayerId;
@@ -289,6 +289,17 @@ function LobbyScreen() {
                   <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: BLUE, color: WHITE, border: "2px solid #000", fontFamily: "Cairo" }}>
                     أنت
                   </span>
+                )}
+                {isHost && p.id !== gameState.hostPlayerId && (
+                  <button
+                    type="button"
+                    onClick={() => transferHost(p.id)}
+                    className="text-xs font-bold px-2 py-0.5 rounded-full"
+                    style={{ background: YELLOW, color: BLACK, border: "2px solid #000", fontFamily: "Cairo" }}
+                    title="تسليم الهوست"
+                  >
+                    خلّيه هوست
+                  </button>
                 )}
               </motion.div>
             ))}
@@ -911,12 +922,14 @@ function GameOverScreen() {
 export default function Room() {
   const [match, params] = useRoute("/room/:code");
   const [, setLocation] = useLocation();
+  const searchParams = new URLSearchParams(window.location.search);
+  const queryName = searchParams.get("name")?.trim() || "";
   
   // 1. ضفنا `socket` هنا عشان نراقب حالته
   const { socket, gameState, myPlayerId, joinRoom, error } = useSocket();
   const joinedRef = useRef(false);
+  const autoJoinFromQueryRef = useRef(Boolean(queryName));
   const [playerName, setPlayerName] = useState(() => {
-    const searchParams = new URLSearchParams(window.location.search);
     return searchParams.get("name") || localStorage.getItem("date-judge-player-name") || "";
   });
 
@@ -935,15 +948,16 @@ export default function Room() {
   useEffect(() => {
     if (!match || joinedRef.current) return;
     if (!roomCode) return; 
-    if (!playerName.trim()) return; 
+    if (!autoJoinFromQueryRef.current || !queryName) return;
     
     // 3. السطر السحري: لو خط الاتصال لسه بيقوم، استنى وماتعملش حاجة
     if (!socket) return; 
 
-    localStorage.setItem("date-judge-player-name", playerName.trim());
-    joinRoom(roomCode, playerName.trim());
+    localStorage.setItem("date-judge-player-name", queryName);
+    joinRoom(roomCode, queryName);
     joinedRef.current = true;
-  }, [match, roomCode, playerName, joinRoom, socket]); // 4. خلينا الـ useEffect يراقب الـ socket
+    autoJoinFromQueryRef.current = false;
+  }, [match, roomCode, queryName, joinRoom, socket]); // 4. auto-join من باراميتر الاسم فقط
 
   // Screen for entering name if coming from a shared link without a name
   if (!joinedRef.current) {
