@@ -923,12 +923,11 @@ export default function Room() {
   const [match, params] = useRoute("/room/:code");
   const [, setLocation] = useLocation();
   const searchParams = new URLSearchParams(window.location.search);
-  const queryName = searchParams.get("name")?.trim() || "";
+  const initialAutoJoinName = (searchParams.get("name") || localStorage.getItem("date-judge-player-name") || "").trim();
   
-  // 1. ضفنا `socket` هنا عشان نراقب حالته
   const { socket, gameState, myPlayerId, joinRoom, error } = useSocket();
   const joinedRef = useRef(false);
-  const autoJoinFromQueryRef = useRef(Boolean(queryName));
+  const autoJoinNameRef = useRef(initialAutoJoinName);
   const [playerName, setPlayerName] = useState(() => {
     return searchParams.get("name") || localStorage.getItem("date-judge-player-name") || "";
   });
@@ -937,7 +936,6 @@ export default function Room() {
 
   const handleJoinRoom = () => {
     const trimmedName = playerName.trim();
-    // 2. مش هننفذ الدخول غير لو الـ socket موجود
     if (!match || !roomCode || !trimmedName || !socket) return; 
 
     localStorage.setItem("date-judge-player-name", trimmedName);
@@ -948,16 +946,16 @@ export default function Room() {
   useEffect(() => {
     if (!match || joinedRef.current) return;
     if (!roomCode) return; 
-    if (!autoJoinFromQueryRef.current || !queryName) return;
-    
-    // 3. السطر السحري: لو خط الاتصال لسه بيقوم، استنى وماتعملش حاجة
-    if (!socket) return; 
+    if (!socket) return;
 
-    localStorage.setItem("date-judge-player-name", queryName);
-    joinRoom(roomCode, queryName);
+    const autoJoinName = autoJoinNameRef.current;
+    if (!autoJoinName) return;
+    
+    localStorage.setItem("date-judge-player-name", autoJoinName);
+    joinRoom(roomCode, autoJoinName);
     joinedRef.current = true;
-    autoJoinFromQueryRef.current = false;
-  }, [match, roomCode, queryName, joinRoom, socket]); // 4. auto-join من باراميتر الاسم فقط
+    autoJoinNameRef.current = "";
+  }, [match, roomCode, joinRoom, socket]);
 
   // Screen for entering name if coming from a shared link without a name
   if (!joinedRef.current) {
