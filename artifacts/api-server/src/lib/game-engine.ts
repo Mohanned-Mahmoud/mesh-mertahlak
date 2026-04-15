@@ -175,6 +175,34 @@ export function initSocketIO(io: SocketIOServer) {
       emitToRoom(io, room, "phase-changed");
     });
 
+    socket.on("change-question", async ({ roomCode }: { roomCode: string }) => {
+      const room = rooms.get(roomCode.toUpperCase());
+      if (!room || room.phase !== "card-display") return;
+
+      const judge = room.players[room.currentJudgeIndex];
+      const currentPlayer = room.players.find((p) => p.socketId === socket.id);
+      if (!currentPlayer || currentPlayer.id !== judge?.id) return;
+
+      const previousQuestionId = room.currentQuestion?.id ?? null;
+
+      let nextQuestion = await getRandomQuestion(room.usedQuestionIds);
+      room.usedQuestionIds.add(nextQuestion.id);
+
+      if (previousQuestionId && nextQuestion.id === previousQuestionId) {
+        const retryQuestion = await getRandomQuestion(room.usedQuestionIds);
+        nextQuestion = retryQuestion;
+        room.usedQuestionIds.add(nextQuestion.id);
+      }
+
+      room.currentQuestion = {
+        id: nextQuestion.id,
+        question: nextQuestion.question,
+        answer: nextQuestion.answer,
+      };
+
+      emitToRoom(io, room, "phase-changed");
+    });
+
     socket.on("start-voting", ({ roomCode }: { roomCode: string }) => {
       const room = rooms.get(roomCode.toUpperCase());
       if (!room) return;

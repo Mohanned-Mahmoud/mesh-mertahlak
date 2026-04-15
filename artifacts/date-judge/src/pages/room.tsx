@@ -335,7 +335,7 @@ function LobbyScreen() {
 
 /* ─── Judge Card Display (Fixed Version) ──────────────────────── */
 function JudgeCardDisplay() {
-  const { gameState, nextPhase } = useSocket();
+  const { gameState, nextPhase, changeQuestion } = useSocket();
   const [flipped, setFlipped] = useState(false);
   if (!gameState?.currentQuestion) return null;
 
@@ -429,6 +429,14 @@ function JudgeCardDisplay() {
             transition={{ delay: 0.3, type: "spring", stiffness: 250, damping: 20 }}
             className="w-full max-w-sm space-y-3"
           >
+            <button
+              onClick={changeQuestion}
+              className="btn-brutal w-full py-4 flex items-center justify-center gap-3"
+              style={{ background: BLUE, color: WHITE, fontSize: "1.2rem" }}
+            >
+              <IconRepeat size={30} />
+              تغيير السؤال
+            </button>
             <div
               className="rounded-2xl p-4 text-center flex items-center justify-center gap-3"
               style={{ background: "#f9f9f9", border: "4px solid #000" }}
@@ -457,6 +465,7 @@ function JudgeCardDisplay() {
 function PlayerCardDisplay() {
   const { gameState } = useSocket();
   const [revealed, setRevealed] = useState(false);
+  const [hiddenMode, setHiddenMode] = useState(false);
   if (!gameState?.currentQuestion) return null;
 
   const isTruthTeller = gameState.myRole === "truth-teller";
@@ -468,6 +477,39 @@ function PlayerCardDisplay() {
 
   return (
     <div className="min-h-[100dvh] flex flex-col items-center justify-center p-5 gap-5" dir="rtl">
+      <div className="w-full max-w-sm">
+        <button
+          onClick={() => setHiddenMode((prev) => !prev)}
+          className="btn-brutal w-full py-3 flex items-center justify-center gap-2"
+          style={{ background: hiddenMode ? ORANGE : BLACK, color: WHITE, fontSize: "1rem" }}
+        >
+          <IconLock size={20} />
+          {hiddenMode ? "إظهار التفاصيل" : "إخفاء التفاصيل"}
+        </button>
+      </div>
+
+      {hiddenMode ? (
+        <motion.div
+          initial={{ y: 15, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="w-full max-w-sm rounded-3xl overflow-hidden"
+          style={{ border: "4px solid #000", boxShadow: "8px 8px 0 #000", background: WHITE }}
+        >
+          <div className="py-3 px-5 text-center" style={{ background: "#f0f0f0", borderBottom: "4px solid #000" }}>
+            <p className="text-xs font-bold opacity-50 mb-1" style={{ fontFamily: "Cairo" }}>السؤال</p>
+            <p className="text-base font-bold" style={{ fontFamily: "Cairo" }}>
+              {gameState.currentQuestion.question}
+            </p>
+          </div>
+          <div className="py-8 px-5 text-center" style={{ background: YELLOW }}>
+            <p className="text-lg" style={{ fontFamily: "Lalezar" }}>وضع الخصوصية مفعل</p>
+            <p className="text-sm font-bold opacity-80 mt-2" style={{ fontFamily: "Cairo" }}>
+              الدور والإجابة مخفيين
+            </p>
+          </div>
+        </motion.div>
+      ) : (
+        <>
       {/* Role stamp */}
       <motion.div
         initial={{ scale: 0, rotate: -10 }}
@@ -555,6 +597,8 @@ function PlayerCardDisplay() {
           </motion.div>
         )}
       </AnimatePresence>
+        </>
+      )}
     </div>
   );
 }

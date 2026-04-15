@@ -47,6 +47,7 @@ type SocketContextType = {
   joinRoom: (roomCode: string, playerName: string) => void;
   startGame: () => void;
   nextPhase: () => void;
+  changeQuestion: () => void;
   startVoting: () => void;
   submitVote: (votedPlayerId: string) => void;
   nextRound: () => void;
@@ -132,6 +133,12 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const changeQuestion = () => {
+    if (socket && gameState) {
+      socket.emit('change-question', { roomCode: gameState.roomCode });
+    }
+  };
+
   const submitVote = (votedPlayerId: string) => {
     if (socket && gameState) {
       socket.emit('submit-vote', { roomCode: gameState.roomCode, votedPlayerId });
@@ -153,6 +160,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         joinRoom,
         startGame,
         nextPhase,
+        changeQuestion,
         startVoting,
         submitVote,
         nextRound,
